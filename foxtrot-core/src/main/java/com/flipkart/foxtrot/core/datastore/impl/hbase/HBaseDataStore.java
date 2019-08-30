@@ -120,7 +120,7 @@ public class HBaseDataStore implements DataStore {
                 if(!isValidDocument(document, errorMessages, i)) {
                     continue;
                 }
-                Document translatedDocument = translator.translate(table, document);
+                Document translatedDocument = translator.translate(table.getName(), document);
                 puts.add(getPutForDocument(translatedDocument));
                 translatedDocuments.add(translatedDocument);
             }

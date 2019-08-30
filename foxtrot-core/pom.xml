@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
-        <version>6.3.1-2</version>
+        <version>6.3.1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -179,12 +179,12 @@
         <dependency>
             <groupId>com.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
-            <version>6.3.1-2</version>
+            <version>6.3.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.foxtrot</groupId>
             <artifactId>foxtrot-translator</artifactId>
-            <version>6.3.1-2</version>
+            <version>6.3.1.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Reflections for scanning classpath to get analytics providers-->
