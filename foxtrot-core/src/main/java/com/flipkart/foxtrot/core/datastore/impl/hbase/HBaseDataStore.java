@@ -95,7 +95,7 @@ public class HBaseDataStore implements DataStore {
         }
         Document translatedDocument = null;
         try (org.apache.hadoop.hbase.client.Table hTable = tableWrapper.getTable(table)) {
-            translatedDocument = translator.translate(table, document);
+            translatedDocument = translator.translate(table.getName(), document);
             hTable.put(getPutForDocument(translatedDocument));
         } catch (JsonProcessingException e) {
             throw FoxtrotExceptions.createBadRequestException(table, e);

@@ -3,7 +3,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.flipkart.foxtrot</groupId>
+        <groupId>com.foxtrot</groupId>
         <artifactId>foxtrot</artifactId>
         <version>6.3.1-2</version>
     </parent>
@@ -177,12 +177,12 @@
 
         <!--Internal-->
         <dependency>
-            <groupId>com.flipkart.foxtrot</groupId>
+            <groupId>com.foxtrot</groupId>
             <artifactId>foxtrot-common</artifactId>
             <version>6.3.1-2</version>
         </dependency>
         <dependency>
-            <groupId>com.flipkart.foxtrot</groupId>
+            <groupId>com.foxtrot</groupId>
             <artifactId>foxtrot-translator</artifactId>
             <version>6.3.1-2</version>
         </dependency>

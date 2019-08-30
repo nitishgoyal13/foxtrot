@@ -8,7 +8,7 @@
     <description>Foxtrot is a scalable data and query store service for for real-time event data.</description>
     <url>https://git@github.com/flipkart-incubator/foxtrot</url>
 
-    <groupId>com.flipkart.foxtrot</groupId>
+    <groupId>com.foxtrot</groupId>
     <artifactId>foxtrot</artifactId>
     <packaging>pom</packaging>
     <version>6.3.1-2</version>
@@ -28,6 +28,14 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
+
+    <distributionManagement>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
+    </distributionManagement>
 
     <developers>
         <developer>

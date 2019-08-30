@@ -40,17 +40,17 @@ public class DocumentTranslator {
         }
     }
 
-    public List<Document> translate(final Table table, final List<Document> inDocuments) {
+    public List<Document> translate(final String tableName, final List<Document> inDocuments) {
         ImmutableList.Builder<Document> docListBuilder = ImmutableList.builder();
         for (Document document : inDocuments) {
-            docListBuilder.add(translate(table, document));
+            docListBuilder.add(translate(tableName, document));
         }
         return docListBuilder.build();
     }
 
-    public Document translate(final Table table, final Document inDocument) {
+    public Document translate(final String tableName, final Document inDocument) {
         Document document = new Document();
-        DocumentMetadata metadata = metadata(table, inDocument);
+        DocumentMetadata metadata = metadata(tableName, inDocument);
 
         switch (rawKeyVersion) {
             case "1.0":
@@ -80,8 +80,8 @@ public class DocumentTranslator {
         return document;
     }
 
-    private DocumentMetadata metadata(final Table table, final Document inDocument) {
-        final String rowKey = generateScalableKey(rawStorageIdFromDocument(table, inDocument));
+    private DocumentMetadata metadata(final String tableName, final Document inDocument) {
+        final String rowKey = generateScalableKey(rawStorageIdFromDocument(tableName, inDocument));
         DocumentMetadata metadata = new DocumentMetadata();
         metadata.setRawStorageId(rowKey);
         metadata.setId(inDocument.getId());
@@ -89,12 +89,12 @@ public class DocumentTranslator {
         return metadata;
     }
 
-    private String rawStorageIdFromDocument(final Table table, final Document document) {
+    private String rawStorageIdFromDocument(final String tableName, final Document document) {
         switch (rawKeyVersion) {
             case "1.0":
-                return document.getId() + ":" + table.getName();
+                return document.getId() + ":" + tableName;
             case "2.0":
-                return String.format("%s:%020d:%s:%s", table.getName(), document.getTimestamp(), document.getId(),
+                return String.format("%s:%020d:%s:%s", tableName, document.getTimestamp(), document.getId(),
                         Constants.RAW_KEY_VERSION_TO_SUFFIX_MAP.get(rawKeyVersion)
                 );
             default:
