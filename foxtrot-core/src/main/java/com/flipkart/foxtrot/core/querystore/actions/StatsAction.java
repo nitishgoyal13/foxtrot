@@ -1,6 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.ResultSort;
@@ -17,9 +16,6 @@ import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -27,6 +23,12 @@ import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * Created by rishabh.goyal on 02/08/14.
@@ -59,17 +61,8 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public void validateImpl(StatsRequest parameter, String email) {
-        List<String> validationErrors = Lists.newArrayList();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("field name cannot be null or empty");
-        }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
+    public String getMetricKey() {
+        return getParameter().getTable();
     }
 
     @Override
@@ -118,11 +111,6 @@ public class StatsAction extends Action<StatsRequest> {
     }
 
     @Override
-    public String getMetricKey() {
-        return getParameter().getTable();
-    }
-
-    @Override
     public SearchRequestBuilder getRequestBuilder(StatsRequest parameter) {
         SearchRequestBuilder searchRequestBuilder;
         try {
@@ -146,8 +134,8 @@ public class StatsAction extends Action<StatsRequest> {
                                 .map(x -> new ResultSort(x,
                                         ResultSort.Order.asc))
                                 .collect(Collectors.toList()),
-                        Sets.newHashSet(percentiles,
-                                extendedStats)));
+                                                                                Sets.newHashSet(percentiles, extendedStats)
+                                                                               ));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);
