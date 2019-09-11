@@ -12,10 +12,6 @@
  */
 package com.flipkart.foxtrot.core;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.flipkart.foxtrot.common.Document;
@@ -37,16 +33,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -59,13 +45,19 @@ import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.mockito.Mockito.*;
+
 /**
  * Created by rishabh.goyal on 28/04/14.
  */
 public class TestUtils {
 
     public static final String TEST_TABLE_NAME = "test-table";
-    public static final String TEST_EMAIL = "mudit.g@phonepe.com";
+    public static final String TEST_EMAIL = "nitishgoyal13@gmail.com";
     public static final Table TEST_TABLE = Table.builder()
             .name(TEST_TABLE_NAME)
             .ttl(7)
@@ -80,16 +72,18 @@ public class TestUtils {
         doReturn(new HbaseConfig()).when(tableConnection)
                 .getHbaseConfig();
         HBaseDataStore hBaseDataStore = new HBaseDataStore(tableConnection, new ObjectMapper(),
-                                                           new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
+                new DocumentTranslator(TestUtils.createHBaseConfigWithRawKeyV2())
         );
         hBaseDataStore = spy(hBaseDataStore);
         return hBaseDataStore;
     }
 
-    public static HbaseConfig createHBaseConfigWithRawKeyV2() {
-        HbaseConfig hbaseConfig = new HbaseConfig();
-        hbaseConfig.setRawKeyVersion("2.0");
-        return hbaseConfig;
+    public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
+        Map<String, Object> data = Maps.newHashMap();
+        for(int i = 0; i < args.length; i += 2) {
+            data.put((String)args[i], args[i + 1]);
+        }
+        return new Document(id, timestamp, mapper.valueToTree(data));
     }
 
     public static void registerActions(AnalyticsLoader analyticsLoader, ObjectMapper mapper) throws Exception {
@@ -101,21 +95,14 @@ public class TestUtils {
         List<NamedType> types = new Vector<>();
         for (Class<? extends Action> action : actions) {
             AnalyticsProvider analyticsProvider = action.getAnnotation(AnalyticsProvider.class);
-            if (null == analyticsProvider.request()
-                    || null == analyticsProvider.opcode()
-                    || analyticsProvider.opcode().isEmpty()
-                    || null == analyticsProvider.response()) {
+            final String opcode = analyticsProvider.opcode();
+            if(Strings.isNullOrEmpty(opcode)) {
                 throw new Exception("Invalid annotation on " + action.getCanonicalName());
             }
-            if (analyticsProvider.opcode()
-                    .equalsIgnoreCase("default")) {
-                logger.warn("Action " + action.getCanonicalName() + " does not specify cache token. " +
-                        "Using default cache.");
-            }
-            final String opcode = analyticsProvider.opcode();
+
             analyticsLoader.register(
                     new ActionMetadata(analyticsProvider.request(), action, analyticsProvider.cacheable()));
-            if(analyticsProvider.cacheable()) {
+            if (analyticsProvider.cacheable()) {
                 analyticsLoader.registerCache(opcode);
             }
             types.add(new NamedType(analyticsProvider.request(), opcode));
@@ -126,14 +113,21 @@ public class TestUtils {
                 .registerSubtypes(types.toArray(new NamedType[types.size()]));
     }
 
-    public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
-        return new DocumentTranslator(createHBaseConfigWithRawKeyV1()).translate(table, document);
-    }
 
     public static HbaseConfig createHBaseConfigWithRawKeyV1() {
         HbaseConfig hbaseConfig = new HbaseConfig();
         hbaseConfig.setRawKeyVersion("1.0");
         return hbaseConfig;
+    }
+
+    public static HbaseConfig createHBaseConfigWithRawKeyV2() {
+        HbaseConfig hbaseConfig = new HbaseConfig();
+        hbaseConfig.setRawKeyVersion("2.0");
+        return hbaseConfig;
+    }
+
+    public static Document translatedDocumentWithRowKeyVersion1(Table table, Document document) {
+        return new DocumentTranslator(createHBaseConfigWithRawKeyV1()).translate(table, document);
     }
 
     public static Document translatedDocumentWithRowKeyVersion2(Table table, Document document) {
@@ -163,14 +157,6 @@ public class TestUtils {
                 TestUtils.getDocument("E", 1397658118004L, new Object[]{"os", "ios", "version", 2, "device", "ipad"},
                         mapper));
         return documents;
-    }
-
-    public static Document getDocument(String id, long timestamp, Object[] args, ObjectMapper mapper) {
-        Map<String, Object> data = Maps.newHashMap();
-        for (int i = 0; i < args.length; i += 2) {
-            data.put((String) args[i], args[i + 1]);
-        }
-        return new Document(id, timestamp, mapper.valueToTree(data));
     }
 
     public static List<Document> getGroupDocuments(ObjectMapper mapper) {
@@ -222,16 +208,11 @@ public class TestUtils {
         Random random = new Random();
         return IntStream.rangeClosed(0, 3_000)
                 .mapToObj(i -> Document.builder()
-                        .id(UUID.randomUUID()
+                        .id(UUID.randomUUID().toString())
+                        .timestamp(i * 10_000 + 1397658117000L)
+                        .data(mapper.valueToTree(ImmutableMap.<String, Object>builder().put("deviceId", UUID.randomUUID()
                                 .toString())
-                        .timestamp(i * 60000 + System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1))
-                        .data(mapper.valueToTree(ImmutableMap.<String, Object>builder().put("deviceId",
-                                UUID.randomUUID()
-                                        .toString())
-                                .put("os",
-                                        new String[]{"ios", "android", "android",
-                                                "android"}[random.nextInt(
-                                                2)])
+                                                         .put("os", new String[]{"ios", "android", "android", "android"}[random.nextInt(4)])
                                 .put("registered",
                                         new boolean[]{true, false, false}[random.nextInt(3)])
                                 .put("value", random.nextInt(101))
@@ -502,23 +483,18 @@ public class TestUtils {
         List<Document> documents = new Vector<Document>();
         documents.add(TestUtils.getDocument("Z", startTimestamp,
                 new Object[]{"os", "android", "device", "nexus", "battery", 24}, mapper));
-        documents.add(TestUtils.getDocument("Y", startTimestamp++,
-                new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
-        documents.add(TestUtils.getDocument("X", startTimestamp++,
-                new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
-        documents.add(TestUtils.getDocument("W", startTimestamp++,
-                new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
-        documents.add(TestUtils.getDocument("A", startTimestamp++,
-                new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
-        documents.add(TestUtils.getDocument("B", startTimestamp++,
-                new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
-        documents.add(TestUtils.getDocument("C", startTimestamp++,
-                new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
-        documents.add(TestUtils.getDocument("D", startTimestamp++,
-                new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
         documents.add(
-                TestUtils.getDocument("E", startTimestamp, new Object[]{"os", "ios", "version", 2, "device", "ipad"},
-                        mapper));
+                TestUtils.getDocument("Y", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 48}, mapper));
+        documents.add(
+                TestUtils.getDocument("X", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 74}, mapper));
+        documents.add(
+                TestUtils.getDocument("W", startTimestamp++, new Object[]{"os", "android", "device", "nexus", "battery", 99}, mapper));
+        documents.add(TestUtils.getDocument("A", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "nexus"}, mapper));
+        documents.add(
+                TestUtils.getDocument("B", startTimestamp++, new Object[]{"os", "android", "version", 1, "device", "galaxy"}, mapper));
+        documents.add(TestUtils.getDocument("C", startTimestamp++, new Object[]{"os", "android", "version", 2, "device", "nexus"}, mapper));
+        documents.add(TestUtils.getDocument("D", startTimestamp++, new Object[]{"os", "ios", "version", 1, "device", "iphone"}, mapper));
+        documents.add(TestUtils.getDocument("E", startTimestamp, new Object[]{"os", "ios", "version", 2, "device", "ipad"}, mapper));
         return documents;
     }
 
@@ -546,9 +522,9 @@ public class TestUtils {
         return elasticsearchConnection;
     }
 
-    public static void createTable(ElasticsearchConnection elasticsearchConnection, String table) {
+    public static void ensureIndex(ElasticsearchConnection connection, final String table) {
         IndicesExistsRequest indicesExistsRequest = new IndicesExistsRequest().indices(table);
-        IndicesExistsResponse indicesExistsResponse = elasticsearchConnection.getClient()
+        IndicesExistsResponse indicesExistsResponse = connection.getClient()
                 .admin()
                 .indices()
                 .exists(indicesExistsRequest)
@@ -559,7 +535,7 @@ public class TestUtils {
                     .put("number_of_replicas", 0)
                     .build();
             CreateIndexRequest createRequest = new CreateIndexRequest(table).settings(indexSettings);
-            elasticsearchConnection.getClient()
+            connection.getClient()
                     .admin()
                     .indices()
                     .create(createRequest)

@@ -1,17 +1,16 @@
 package com.flipkart.foxtrot.core.querystore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
 import com.flipkart.foxtrot.core.querystore.actions.Constants;
-import java.util.UUID;
 import org.junit.Test;
+
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 public class DocumentTranslatorTest {
 

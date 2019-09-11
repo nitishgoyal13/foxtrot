@@ -387,7 +387,7 @@ public class ElasticsearchQueryStore implements QueryStore {
                 .deepCopy();
         dataNode.set(ElasticsearchUtils.DOCUMENT_META_FIELD_NAME, metaNode);
         dataNode.set(ElasticsearchUtils.DOCUMENT_TIME_FIELD_NAME, mapper.valueToTree(document.getDate()));
-        mutators.forEach(mutator-> mutator.mutate(table, document.getId(), dataNode));
+        mutators.forEach(mutator -> mutator.mutate(table, document.getId(), dataNode));
         return ElasticsearchQueryUtils.toMap(mapper, dataNode);
     }
 
@@ -413,13 +413,13 @@ public class ElasticsearchQueryStore implements QueryStore {
 
     private List<String> getIndicesToDelete(Set<String> tables, Set<String> currentIndices) {
         List<String> indicesToDelete = new ArrayList<>();
-        for(String currentIndex : currentIndices) {
+        for (String currentIndex : currentIndices) {
             String table = ElasticsearchUtils.getTableNameFromIndex(currentIndex);
-            if(table != null && tables.contains(table)) {
+            if (table != null && tables.contains(table)) {
                 boolean indexEligibleForDeletion;
                 try {
                     indexEligibleForDeletion = ElasticsearchUtils.isIndexEligibleForDeletion(currentIndex, tableMetadataManager.get(table));
-                    if(indexEligibleForDeletion) {
+                    if (indexEligibleForDeletion) {
                         logger.warn("Index eligible for deletion : {}", currentIndex);
                         indicesToDelete.add(currentIndex);
                     }

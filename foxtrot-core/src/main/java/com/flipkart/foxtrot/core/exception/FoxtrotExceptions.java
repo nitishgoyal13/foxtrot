@@ -2,6 +2,7 @@ package com.flipkart.foxtrot.core.exception;
 
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.Table;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class FoxtrotExceptions {
     }
 
     public static MalformedQueryException createMalformedQueryException(ActionRequest actionRequest,
-            List<String> reasons) {
+                                                                        List<String> reasons) {
         return new MalformedQueryException(actionRequest, reasons);
     }
 

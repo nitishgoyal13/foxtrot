@@ -1,28 +1,14 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.Document;
-import com.flipkart.foxtrot.common.query.MultiTimeQueryRequest;
-import com.flipkart.foxtrot.common.query.MultiTimeQueryResponse;
-import com.flipkart.foxtrot.common.query.Query;
-import com.flipkart.foxtrot.common.query.QueryResponse;
-import com.flipkart.foxtrot.common.query.ResultSort;
+import com.flipkart.foxtrot.common.query.*;
 import com.flipkart.foxtrot.common.query.numeric.BetweenFilter;
 import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import io.dropwizard.util.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -150,7 +136,7 @@ public class MultiTimeQueryActionTest extends ActionTest {
 
         MultiTimeQueryResponse multiTimeQueryResponse = MultiTimeQueryResponse.class.cast(
                 getQueryExecutor().execute(multiTimeQueryRequest));
-        for(String key : multiTimeQueryResponse.getResponses()
+        for (String key : multiTimeQueryResponse.getResponses()
                 .keySet()) {
             compare(documents, ((QueryResponse) multiTimeQueryResponse.getResponses()
                     .get(key)).getDocuments());

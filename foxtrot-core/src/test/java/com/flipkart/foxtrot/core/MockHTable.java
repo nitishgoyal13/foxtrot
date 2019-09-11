@@ -16,33 +16,11 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
 import com.google.protobuf.Service;
 import com.google.protobuf.ServiceException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Append;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Durability;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Increment;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Row;
-import org.apache.hadoop.hbase.client.RowMutations;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.client.coprocessor.Batch.Call;
 import org.apache.hadoop.hbase.client.coprocessor.Batch.Callback;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -50,6 +28,10 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.Filter.ReturnCode;
 import org.apache.hadoop.hbase.ipc.CoprocessorRpcChannel;
 import org.apache.hadoop.hbase.util.Bytes;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Mock implementation of HTableInterface. Holds any supplied data in a multi-dimensional NavigableMap which acts as a
@@ -180,10 +162,10 @@ public class MockHTable implements Table {
     /**
      * Helper method of pre-loaders, adds parameters to data.
      *
-     * @param ret data to load into
-     * @param row rowid
+     * @param ret    data to load into
+     * @param row    rowid
      * @param column family:qualifier encoded value
-     * @param val value
+     * @param val    value
      */
     private static void put(MockHTable ret, String row, String column, String val) {
         String[] fq = split(column);
@@ -259,29 +241,29 @@ public class MockHTable implements Table {
     /**
      * Helper method to convert some data into a list of KeyValue's
      *
-     * @param row row value of the KeyValue's
-     * @param rowdata data to decode
+     * @param row         row value of the KeyValue's
+     * @param rowdata     data to decode
      * @param maxVersions number of versions to return
      * @return List of KeyValue's
      */
     private static List<KeyValue> toKeyValue(byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, int maxVersions) {
+                                             NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, int maxVersions) {
         return toKeyValue(row, rowdata, 0, Long.MAX_VALUE, maxVersions);
     }
 
     /**
      * Helper method to convert some data into a list of KeyValue's with timestamp constraint
      *
-     * @param row row value of the KeyValue's
-     * @param rowdata data to decode
+     * @param row            row value of the KeyValue's
+     * @param rowdata        data to decode
      * @param timestampStart start of the timestamp constraint
-     * @param timestampEnd end of the timestamp constraint
-     * @param maxVersions number of versions to return
+     * @param timestampEnd   end of the timestamp constraint
+     * @param maxVersions    number of versions to return
      * @return List of KeyValue's
      */
     private static List<KeyValue> toKeyValue(byte[] row,
-            NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, long timestampStart,
-            long timestampEnd, int maxVersions) {
+                                             NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> rowdata, long timestampStart,
+                                             long timestampEnd, int maxVersions) {
         List<KeyValue> ret = new ArrayList<KeyValue>();
         for (byte[] family : rowdata.keySet()) {
             for (byte[] qualifier : rowdata.get(family)
@@ -312,8 +294,8 @@ public class MockHTable implements Table {
     /**
      * Helper method to find a key in a map. If key is not found, newObject is added to map and returned
      *
-     * @param map map to extract value from
-     * @param key key to look for
+     * @param map       map to extract value from
+     * @param key       key to look for
      * @param newObject set key to this if not found
      * @return found value or newObject if not found
      */
@@ -690,10 +672,10 @@ public class MockHTable implements Table {
     /**
      * Checks if the value with given details exists in database, or is non-existent in the case of value being null
      *
-     * @param row row
-     * @param family family
+     * @param row       row
+     * @param family    family
      * @param qualifier qualifier
-     * @param value value
+     * @param value     value
      * @return true if value is not null and exists in db, or value is null and not exists in db, false otherwise
      */
     private boolean check(byte[] row, byte[] family, byte[] qualifier, byte[] value) {
@@ -719,7 +701,7 @@ public class MockHTable implements Table {
 
     @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, Put put) throws IOException {
+                               byte[] value, Put put) throws IOException {
         return false;
     }
 
@@ -785,7 +767,7 @@ public class MockHTable implements Table {
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, Delete delete) throws IOException {
+                                  byte[] value, Delete delete) throws IOException {
         return false;
     }
 
@@ -853,13 +835,13 @@ public class MockHTable implements Table {
 
     @Override
     public <T extends Service, R> Map<byte[], R> coprocessorService(Class<T> service, byte[] startKey, byte[] endKey,
-            Call<T, R> callable) throws ServiceException, Throwable {
+                                                                    Call<T, R> callable) throws ServiceException, Throwable {
         return null;
     }
 
     @Override
     public <T extends Service, R> void coprocessorService(Class<T> service, byte[] startKey, byte[] endKey,
-            Call<T, R> callable, Callback<R> callback) throws ServiceException, Throwable {
+                                                          Call<T, R> callable, Callback<R> callback) throws ServiceException, Throwable {
     }
 
     @Override
@@ -875,27 +857,27 @@ public class MockHTable implements Table {
 
     @Override
     public <R extends Message> Map<byte[], R> batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype) throws ServiceException, Throwable {
+                                                                      Message request, byte[] startKey, byte[] endKey, R responsePrototype) throws ServiceException, Throwable {
         return null;
     }
 
     @Override
     public <R extends Message> void batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype, Callback<R> callback)
+                                                            Message request, byte[] startKey, byte[] endKey, R responsePrototype, Callback<R> callback)
             throws ServiceException, Throwable {
 
     }
 
     @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp,
-            byte[] value, RowMutations mutation) throws IOException {
+                                  byte[] value, RowMutations mutation) throws IOException {
         return false;
     }
 
     /**
      * Read a value saved in the object. Useful for making assertions in tests.
      *
-     * @param rowid rowid of the data to read
+     * @param rowid  rowid of the data to read
      * @param column family:qualifier of the data to read
      * @return value or null if row or column of the row does not exist
      */

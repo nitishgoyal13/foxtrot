@@ -17,14 +17,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.concurrent.ExecutionException;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by swapnil on 20/01/16.

@@ -67,12 +67,8 @@ import com.flipkart.foxtrot.sql.fqlstore.FqlStoreService;
 import com.flipkart.foxtrot.sql.fqlstore.FqlStoreServiceImpl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.phonepe.gandalf.client.GandalfBundle;
 import com.phonepe.gandalf.client.GandalfClient;
-import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import com.phonepe.rosey.dwconfig.RoseyConfigSourceProvider;
-import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryBundle;
-import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -85,7 +81,6 @@ import io.dropwizard.util.Duration;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
@@ -190,19 +185,19 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         FoxtrotTableManager tableManager = new FoxtrotTableManager(tableMetadataManager, queryStore, dataStore);
         CacheManager cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, objectMapper, cacheConfig));
         AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                                                              cacheManager, objectMapper);
+                cacheManager, objectMapper);
         InternalEventBus eventBus = new GuavaInternalEventBus();
         eventBus.subscribe(new AlertingSystemEventConsumer(
                 new EmailClient(emailConfig),
-                    new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
-                                         new StrSubstitutorEmailBodyBuilder())));
+                new RichEmailBuilder(new StrSubstitutorEmailSubjectBuilder(),
+                        new StrSubstitutorEmailBodyBuilder())));
         QueryExecutor executor = new QueryExecutor(analyticsLoader, executorService,
-                                                   ImmutableList.<ActionExecutionObserver>builder()
-                                                           .add(new MetricRecorder())
-                                                           .add(new ResponseCacheUpdater(cacheManager))
-                                                           .add(new SlowQueryReporter())
-                                                           .add(new EventPublisherActionExecutionObserver(eventBus))
-                                                           .build());
+                ImmutableList.<ActionExecutionObserver>builder()
+                        .add(new MetricRecorder())
+                        .add(new ResponseCacheUpdater(cacheManager))
+                        .add(new SlowQueryReporter())
+                        .add(new EventPublisherActionExecutionObserver(eventBus))
+                        .build());
         DataDeletionManagerConfig dataDeletionManagerConfig = configuration.getDeletionManagerConfig();
         DataDeletionManager dataDeletionManager = new DataDeletionManager(dataDeletionManagerConfig, queryStore,
                 scheduledExecutorService,

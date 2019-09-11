@@ -87,13 +87,13 @@ public class StatsAction extends Action<StatsRequest> {
     @Override
     public void validateImpl(StatsRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -134,8 +134,8 @@ public class StatsAction extends Action<StatsRequest> {
                                 .map(x -> new ResultSort(x,
                                         ResultSort.Order.asc))
                                 .collect(Collectors.toList()),
-                                                                                Sets.newHashSet(percentiles, extendedStats)
-                                                                               ));
+                        Sets.newHashSet(percentiles, extendedStats)
+                ));
             }
         } catch (Exception e) {
             throw FoxtrotExceptions.queryCreationException(parameter, e);

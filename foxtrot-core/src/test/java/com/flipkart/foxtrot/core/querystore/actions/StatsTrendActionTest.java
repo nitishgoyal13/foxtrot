@@ -387,12 +387,12 @@ public class StatsTrendActionTest extends ActionTest {
                 .getBuckets()
                 .size());
         assertNotNull(statsTrendResponse.getBuckets()
-                           .get(0)
-                           .getBuckets()
-                           .get(0)
-                           .getResult()
-                           .get(0)
-                           .getPercentiles());
+                .get(0)
+                .getBuckets()
+                .get(0)
+                .getResult()
+                .get(0)
+                .getPercentiles());
     }
 
     @Test
@@ -414,10 +414,9 @@ public class StatsTrendActionTest extends ActionTest {
         StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
         try {
             System.out.println(Jackson.newObjectMapper()
-                                       .writerWithDefaultPrettyPrinter()
-                                       .writeValueAsString(statsTrendResponse));
-        }
-        catch (JsonProcessingException e) {
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(statsTrendResponse));
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         assertNotNull(statsTrendResponse);
@@ -439,12 +438,12 @@ public class StatsTrendActionTest extends ActionTest {
                 .getBuckets()
                 .size());
         assertNull(statsTrendResponse.getBuckets()
-                  .get(0)
-                  .getBuckets()
-                  .get(0)
-                  .getResult()
-                  .get(0)
-                  .getPercentiles());
+                .get(0)
+                .getBuckets()
+                .get(0)
+                .getResult()
+                .get(0)
+                .getPercentiles());
 
     }
 
@@ -504,9 +503,9 @@ public class StatsTrendActionTest extends ActionTest {
                 .getStats()
                 .size());
         assertTrue(statsTrendResponse.getResult()
-                           .get(0)
-                           .getStats()
-                           .containsKey("count"));
+                .get(0)
+                .getStats()
+                .containsKey("count"));
         assertNull(statsTrendResponse.getBuckets());
     }
 
@@ -529,10 +528,9 @@ public class StatsTrendActionTest extends ActionTest {
         StatsTrendResponse statsTrendResponse = StatsTrendResponse.class.cast(getQueryExecutor().execute(request));
         try {
             System.out.println(Jackson.newObjectMapper()
-                                       .writerWithDefaultPrettyPrinter()
-                                       .writeValueAsString(statsTrendResponse));
-        }
-        catch (JsonProcessingException e) {
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(statsTrendResponse));
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         assertNull(statsTrendResponse.getResult());
@@ -542,24 +540,24 @@ public class StatsTrendActionTest extends ActionTest {
         Assert.assertNotNull(statsTrendResponse.getBuckets().get(0).getBuckets());
         //android-nexus
         Assert.assertEquals(1L,
-                            statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(0).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(0).getStats().get("count"));
         //Make sure  few of them are actually zero
         Assert.assertEquals(0L,
-                            statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(2).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(2).getStats().get("count"));
         Assert.assertEquals(0L,
-                            statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(12).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(12).getStats().get("count"));
         //Now data should come
         Assert.assertEquals(1L,
-                            statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(13).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(0).getBuckets().get(0).getResult().get(13).getStats().get("count"));
         //ios-galaxy
         Assert.assertEquals(1L,
-                            statsTrendResponse.getBuckets().get(1).getBuckets().get(0).getResult().get(0).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(1).getBuckets().get(0).getResult().get(0).getStats().get("count"));
         //ios-nexus
         Assert.assertEquals(1L,
-                            statsTrendResponse.getBuckets().get(1).getBuckets().get(1).getResult().get(0).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(1).getBuckets().get(1).getResult().get(0).getStats().get("count"));
         //wp
         Assert.assertEquals(1L,
-                            statsTrendResponse.getBuckets().get(2).getBuckets().get(0).getResult().get(0).getStats().get("count"));
+                statsTrendResponse.getBuckets().get(2).getBuckets().get(0).getResult().get(0).getStats().get("count"));
     }
 
     private void filterNonZeroCounts(StatsTrendResponse statsTrendResponse) {

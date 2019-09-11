@@ -7,13 +7,10 @@ import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.flipkart.foxtrot.sql.responseprocessors.model.MetaData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.Strings;
+
+import java.util.*;
 
 @Slf4j
 public class FlatteningUtils {
@@ -36,7 +33,7 @@ public class FlatteningUtils {
     }
 
     public static FlatRepresentation genericMultiRowParse(JsonNode response, final List<String> predefinedHeaders,
-            final String sortField) {
+                                                          final String sortField) {
         List<FieldHeader> headers = Lists.newArrayList();
         List<Map<String, Object>> rows = Lists.newArrayList();
         Map<String, Integer> headerData = Maps.newTreeMap();
@@ -67,7 +64,7 @@ public class FlatteningUtils {
     }
 
     private static void populateHeaders(List<String> predefinedHeaders, Map<String, Integer> headerData,
-            List<FieldHeader> headers) {
+                                        List<FieldHeader> headers) {
         if (!CollectionUtils.isNullOrEmpty(predefinedHeaders)) {
             for (String predefinedHeader : predefinedHeaders) {
                 if (headerData.containsKey(predefinedHeader)) {
@@ -86,7 +83,7 @@ public class FlatteningUtils {
     }
 
     public static Map<String, MetaData> generateFieldMappings(String parentField, JsonNode jsonNode,
-            final String separator) {
+                                                              final String separator) {
         Map<String, MetaData> fields = Maps.newTreeMap();
         if (null == jsonNode) {
             log.info("NULL for {}", parentField);

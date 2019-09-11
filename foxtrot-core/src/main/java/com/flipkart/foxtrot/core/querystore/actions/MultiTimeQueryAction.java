@@ -36,8 +36,9 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (multiTimeQueryRequest.getActionRequest() == null && CollectionUtils.isEmpty(
                 multiTimeQueryRequest.getFilters())) {
             throw FoxtrotExceptions.createBadRequestException("multi_time_query",
-                    "No Between Filter found in actionRequest " +
-                            "multiQueryRequest : " + multiQueryRequest.toString());
+                    "No Between Filter found in actionRequest multiQueryRequest : " +
+                            multiQueryRequest.toString()
+            );
         }
 
         if (CollectionUtils.isEmpty(multiTimeQueryRequest.getActionRequest()

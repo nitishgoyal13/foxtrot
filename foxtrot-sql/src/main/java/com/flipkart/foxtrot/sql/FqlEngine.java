@@ -18,9 +18,10 @@ import com.flipkart.foxtrot.sql.responseprocessors.FlatteningUtils;
 import com.flipkart.foxtrot.sql.responseprocessors.model.FlatRepresentation;
 import com.google.common.collect.Lists;
 import com.phonepe.gandalf.models.user.UserDetails;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class FqlEngine {
 
@@ -32,7 +33,7 @@ public class FqlEngine {
     private ObjectMapper mapper;
 
     public FqlEngine(TableMetadataManager tableMetadataManager, QueryStore queryStore, QueryExecutor queryExecutor,
-            ObjectMapper mapper) {
+                     ObjectMapper mapper) {
         this.tableMetadataManager = tableMetadataManager;
         this.queryStore = queryStore;
         this.queryExecutor = queryExecutor;
@@ -63,8 +64,8 @@ public class FqlEngine {
         private FlatRepresentation result;
 
         private QueryProcessor(TableMetadataManager tableMetadataManager, QueryStore queryStore,
-                QueryExecutor queryExecutor, ObjectMapper mapper, UserDetails userDetails,
-                AccessService accessService) {
+                               QueryExecutor queryExecutor, ObjectMapper mapper, UserDetails userDetails,
+                               AccessService accessService) {
             this.tableMetadataManager = tableMetadataManager;
             this.queryStore = queryStore;
             this.queryExecutor = queryExecutor;

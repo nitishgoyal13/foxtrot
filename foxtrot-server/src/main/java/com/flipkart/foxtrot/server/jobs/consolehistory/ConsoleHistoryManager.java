@@ -8,8 +8,6 @@ import com.flipkart.foxtrot.core.querystore.impl.HazelcastConnection;
 import com.flipkart.foxtrot.server.console.ConsoleFetchException;
 import com.flipkart.foxtrot.server.console.ConsoleV2;
 import com.flipkart.foxtrot.server.console.ElasticsearchConsolePersistence;
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import org.elasticsearch.action.search.SearchResponse;
@@ -23,6 +21,9 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
 
 /***
  Created by mudit.g on Dec, 2018
@@ -39,8 +40,8 @@ public class ConsoleHistoryManager extends BaseJobManager {
     private final ElasticsearchConsolePersistence elasticsearchConsolePersistence;
 
     public ConsoleHistoryManager(ScheduledExecutorService scheduledExecutorService,
-            ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
-            HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
+                                 ConsoleHistoryConfig consoleHistoryConfig, ElasticsearchConnection connection,
+                                 HazelcastConnection hazelcastConnection, ObjectMapper mapper) {
         super(consoleHistoryConfig, scheduledExecutorService, hazelcastConnection);
         this.consoleHistoryConfig = consoleHistoryConfig;
         this.connection = connection;

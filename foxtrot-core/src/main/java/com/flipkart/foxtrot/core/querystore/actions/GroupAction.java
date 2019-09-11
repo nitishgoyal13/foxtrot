@@ -722,7 +722,7 @@ public class GroupAction extends Action<GroupRequest> {
             if (probability > PROBABILITY_CUT_OFF) {
                 final String content = requestString();
                 log.warn("Blocked query as it might have screwed up the cluster. Probability: {} Query: {}",
-                         probability, content);
+                        probability, content);
                 throw FoxtrotExceptions.createCardinalityOverflow(
                         parameter, content, parameter.getNesting().get(0), probability);
             } else {

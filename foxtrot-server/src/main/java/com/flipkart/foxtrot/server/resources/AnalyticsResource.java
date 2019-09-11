@@ -21,13 +21,14 @@ import com.flipkart.foxtrot.core.querystore.QueryExecutor;
 import com.flipkart.foxtrot.server.config.QueryConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -73,7 +74,7 @@ public class AnalyticsResource {
     }
 
     private void preprocess(ActionRequest request) {
-        if (queryConfig.isLogQueries()){
+        if (queryConfig.isLogQueries()) {
             log.info("Analytics Query");
         }
     }

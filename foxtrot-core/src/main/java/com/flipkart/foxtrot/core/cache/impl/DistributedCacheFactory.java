@@ -12,8 +12,6 @@
  */
 package com.flipkart.foxtrot.core.cache.impl;
 
-import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.core.cache.Cache;
 import com.flipkart.foxtrot.core.cache.CacheFactory;
@@ -23,6 +21,8 @@ import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
+
+import static com.flipkart.foxtrot.core.querystore.actions.Constants.CACHE_NAME_PREFIX;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 25/03/14 Time: 7:51 PM

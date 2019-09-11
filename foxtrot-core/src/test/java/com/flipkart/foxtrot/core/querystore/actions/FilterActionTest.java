@@ -14,6 +14,7 @@ package com.flipkart.foxtrot.core.querystore.actions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.Query;
@@ -36,7 +37,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -111,28 +111,6 @@ public class FilterActionTest extends ActionTest {
 
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         compare(documents, actualResponse.getDocuments());
-    }
-
-    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
-        assertEquals(expectedDocuments.size(), actualDocuments.size());
-        for (int i = 0; i < expectedDocuments.size(); i++) {
-            Document expected = expectedDocuments.get(i);
-            Document actual = actualDocuments.get(i);
-            assertNotNull(expected);
-            assertNotNull(actual);
-            assertNotNull("Actual document Id should not be null", actual.getId());
-            assertNotNull("Actual document data should not be null", actual.getData());
-            assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
-            assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(),
-                    actual.getTimestamp());
-            Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(),
-                    new TypeReference<HashMap<String, Object>>() {
-                    });
-            Map<String, Object> actualMap = getMapper().convertValue(actual.getData(),
-                    new TypeReference<HashMap<String, Object>>() {
-                    });
-            assertEquals("Actual data should match expected data", expectedMap, actualMap);
-        }
     }
 
     @Test
@@ -727,8 +705,8 @@ public class FilterActionTest extends ActionTest {
                 TestUtils.getDocument("D", 1397658118003L, new Object[]{"os", "ios", "version", 1, "device", "iphone"},
                         getMapper()));
         documents.add(TestUtils.getDocument("C", 1397658118002L,
-                new Object[]{"os", "android", "version", 2, "device", "nexus"},
-                getMapper()));
+                                            new Object[]{"os", "android", "version", 2, "device", "nexus"}, getMapper()
+                                           ));
         documents.add(TestUtils.getDocument("B", 1397658118001L,
                 new Object[]{"os", "android", "version", 1, "device", "galaxy"}, getMapper()
         ));
@@ -775,9 +753,9 @@ public class FilterActionTest extends ActionTest {
     @SuppressWarnings("deprecation")
     @Test
     public void testMissingIndicesQuery() throws FoxtrotException {
-        List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(getMapper(),
-                new Date(2014 - 1900, 4, 1).getTime());
-        documents.addAll(TestUtils.getQueryDocumentsDifferentDate(getMapper(), new Date(2014 - 1900, 4, 5).getTime()));
+        final ObjectMapper mapper = getMapper();
+        List<Document> documents = TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 1).getTime());
+        documents.addAll(TestUtils.getQueryDocumentsDifferentDate(mapper, new Date(2014 - 1900, 4, 5).getTime()));
         getQueryStore().save(TestUtils.TEST_TABLE_NAME, documents);
         for (Document document : documents) {
             getElasticsearchConnection().getClient()
@@ -793,8 +771,9 @@ public class FilterActionTest extends ActionTest {
                 .indices()
                 .getIndex(new GetIndexRequest())
                 .actionGet();
-        assertEquals(4, Arrays.stream(response.getIndices())
-                .filter(index -> !index.equals("table-meta"))
+        // Find all indices returned for this table name.. (using regex to match)
+        assertEquals(3, Arrays.stream(response.getIndices())
+                .filter(index -> index.matches(".*-" + TestUtils.TEST_TABLE_NAME + "-.*"))
                 .count());
 
         Query query = new Query();
@@ -811,5 +790,25 @@ public class FilterActionTest extends ActionTest {
         QueryResponse actualResponse = QueryResponse.class.cast(getQueryExecutor().execute(query));
         assertEquals(documents.size(), actualResponse.getDocuments()
                 .size());
+    }
+
+
+    public void compare(List<Document> expectedDocuments, List<Document> actualDocuments) {
+        assertEquals(expectedDocuments.size(), actualDocuments.size());
+        for(int i = 0; i < expectedDocuments.size(); i++) {
+            Document expected = expectedDocuments.get(i);
+            Document actual = actualDocuments.get(i);
+            assertNotNull(expected);
+            assertNotNull(actual);
+            assertNotNull("Actual document Id should not be null", actual.getId());
+            assertNotNull("Actual document data should not be null", actual.getData());
+            assertEquals("Actual Doc Id should match expected Doc Id", expected.getId(), actual.getId());
+            assertEquals("Actual Doc Timestamp should match expected Doc Timestamp", expected.getTimestamp(), actual.getTimestamp());
+            Map<String, Object> expectedMap = getMapper().convertValue(expected.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
+            Map<String, Object> actualMap = getMapper().convertValue(actual.getData(), new TypeReference<HashMap<String, Object>>() {
+            });
+            assertEquals("Actual data should match expected data", expectedMap, actualMap);
+        }
     }
 }

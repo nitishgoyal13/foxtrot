@@ -17,29 +17,26 @@ import com.phonepe.gandalf.models.user.UserDetails;
 import io.dropwizard.primer.auth.annotation.Authorize;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
-import lombok.extern.slf4j.Slf4j;
+import java.io.OutputStreamWriter;
+import java.util.List;
 
 @Path("/v1/fql")
 @Api(value = "/v1/fql")
 @Slf4j
 public class FqlResource {
 
+    private final QueryConfig queryConfig;
     private FqlEngine fqlEngine;
     private FqlStoreService fqlStoreService;
     private AccessService accessService;
-    private final QueryConfig queryConfig;
 
     public FqlResource(final FqlEngine fqlEngine, final FqlStoreService fqlStoreService, AccessService accessService,
-            QueryConfig queryConfig) {
+                       QueryConfig queryConfig) {
         this.fqlEngine = fqlEngine;
         this.fqlStoreService = fqlStoreService;
         this.accessService = accessService;
@@ -91,8 +88,8 @@ public class FqlResource {
     @Path("/get")
     @ApiOperation("Get List<FqlStore>")
     public List<FqlStore> get(FqlGetRequest fqlGetRequest) {
-        if (queryConfig.isLogQueries()){
-              log.info("Fql Query : " + fqlGetRequest.toString());
+        if (queryConfig.isLogQueries()) {
+            log.info("Fql Query : " + fqlGetRequest.toString());
         }
         return fqlStoreService.get(fqlGetRequest);
     }

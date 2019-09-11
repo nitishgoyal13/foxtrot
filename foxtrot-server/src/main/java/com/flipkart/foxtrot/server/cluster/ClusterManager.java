@@ -86,7 +86,7 @@ public class ClusterManager implements Managed {
         private IMap<String, ClusterMember> members;
 
         private NodeDataUpdater(List<HealthCheck> healthChecks, IMap<String, ClusterMember> members,
-                ClusterMember clusterMember) {
+                                ClusterMember clusterMember) {
             this.healthChecks = ImmutableList.copyOf(healthChecks);
             this.members = members;
             this.clusterMember = clusterMember;

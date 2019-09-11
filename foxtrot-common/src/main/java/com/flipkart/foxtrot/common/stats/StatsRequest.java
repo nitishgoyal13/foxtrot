@@ -39,7 +39,7 @@ public class StatsRequest extends ActionRequest {
     }
 
     public StatsRequest(List<Filter> filters, String table, String field, List<Double> percentiles, Set<Stat> stats,
-            List<String> nesting) {
+                        List<String> nesting) {
         super(Opcodes.STATS, filters);
         this.table = table;
         this.field = field;

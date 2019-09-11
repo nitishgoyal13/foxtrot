@@ -17,13 +17,12 @@ public class EventPublisherActionExecutionObserver implements ActionExecutionObs
 
     @Override
     public void postExecution(ActionEvaluationResponse response) {
-        if(null != response.getException()) {
+        if (null != response.getException()) {
             eventBus.publish(new QueryProcessingError(response.getRequest(), response.getException()));
-        }
-        else {
+        } else {
             eventBus.publish(new QueryProcessed(response.getRequest(),
-                                                response.getResponse(),
-                                                response.getElapsedTime()));
+                    response.getResponse(),
+                    response.getElapsedTime()));
         }
     }
 }

@@ -87,19 +87,19 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
     @Override
     public void validateImpl(StatsTrendRequest parameter) {
         List<String> validationErrors = Lists.newArrayList();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if(CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTimestamp())) {
             validationErrors.add("timestamp field cannot be null or empty");
         }
-        if(parameter.getPeriod() == null) {
+        if (parameter.getPeriod() == null) {
             validationErrors.add(String.format("specify time period (%s)", StringUtils.join(Period.values())));
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -150,20 +150,19 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
         DateHistogramInterval interval = Utils.getHistogramInterval(request.getPeriod());
         AbstractAggregationBuilder dateHistogramBuilder = Utils.buildDateHistogramAggregation(request.getTimestamp(), interval);
         boolean isNumericField = isNumericField(table, field);
-        if(isNumericField) {
+        if (isNumericField) {
             dateHistogramBuilder
                     .subAggregation(Utils.buildStatsAggregation(field, getParameter().getStats()));
-            if(!AnalyticsRequestFlags.hasFlag(request.getFlags(), AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
+            if (!AnalyticsRequestFlags.hasFlag(request.getFlags(), AnalyticsRequestFlags.STATS_SKIP_PERCENTILES)) {
                 dateHistogramBuilder.subAggregation(Utils.buildPercentileAggregation(
                         field, request.getPercentiles(), request.getCompression()));
             }
-        }
-        else {
+        } else {
             dateHistogramBuilder
                     .subAggregation(Utils.buildStatsAggregation(field, Collections.singleton(Stat.COUNT)));
         }
 
-        if(CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
+        if (CollectionUtils.isNullOrEmpty(getParameter().getNesting())) {
             return dateHistogramBuilder;
         }
         return Utils.buildTermsAggregation(getParameter().getNesting()
@@ -238,7 +237,7 @@ public class StatsTrendAction extends Action<StatsTrendRequest> {
             final Aggregation rawPercentiles = bucket.getAggregations()
                     .getAsMap()
                     .get(percentileMetricKey);
-            if(null != rawPercentiles) {
+            if (null != rawPercentiles) {
                 Percentiles internalPercentile = Percentiles.class.cast(rawPercentiles);
                 statsTrendValue.setPercentiles(Utils.createPercentilesResponse(internalPercentile));
             }

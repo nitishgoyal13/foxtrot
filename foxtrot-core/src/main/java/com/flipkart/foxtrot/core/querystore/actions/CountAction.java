@@ -53,10 +53,10 @@ public class CountAction extends Action<CountRequest> {
     public String getRequestCacheKey() {
         long filterHashKey = 0L;
         CountRequest request = getParameter();
-        if(null != request.getFilters()) {
-            for(Filter filter : request.getFilters()) {
-            filterHashKey += 31 * filter.hashCode();
-        }
+        if (null != request.getFilters()) {
+            for (Filter filter : request.getFilters()) {
+                filterHashKey += 31 * filter.hashCode();
+            }
         }
 
         filterHashKey += 31 * (request.isDistinct() ? "TRUE".hashCode() : "FALSE".hashCode());
@@ -68,13 +68,13 @@ public class CountAction extends Action<CountRequest> {
     @Override
     public void validateImpl(CountRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (parameter.isDistinct() && CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("field name cannot be null or empty");
         }
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }

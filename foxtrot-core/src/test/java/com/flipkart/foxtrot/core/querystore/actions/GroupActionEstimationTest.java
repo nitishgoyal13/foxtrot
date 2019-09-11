@@ -1,7 +1,5 @@
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.TestUtils.TEST_EMAIL;
-
 import com.flipkart.foxtrot.common.Document;
 import com.flipkart.foxtrot.common.group.GroupRequest;
 import com.flipkart.foxtrot.common.group.GroupResponse;
@@ -13,8 +11,6 @@ import com.flipkart.foxtrot.core.TestUtils;
 import com.flipkart.foxtrot.core.exception.CardinalityOverflowException;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchQueryStore;
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,7 +58,6 @@ public class GroupActionEstimationTest extends ActionTest {
     }
 
 
-    @Ignore
     @Test(expected = CardinalityOverflowException.class)
     // Block queries on high cardinality fields
     public void testEstimationNoFilterHighCardinality() throws Exception {
@@ -87,12 +82,11 @@ public class GroupActionEstimationTest extends ActionTest {
                 .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
-        Assert.assertTrue(response.getResult()
-                .isEmpty());
+        Assert.assertFalse(response.getResult().isEmpty());
     }
 
 
@@ -108,7 +102,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
@@ -116,16 +110,15 @@ public class GroupActionEstimationTest extends ActionTest {
                 .isEmpty());
     }
 
-    @Ignore
     @Test(expected = CardinalityOverflowException.class)
     public void testEstimationGTFilterHighCardinality() throws Exception {
         GroupRequest groupRequest = new GroupRequest();
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(GreaterThanFilter.builder()
-                                                         .field("value")
-                                                         .value(10)
-                                                         .build()));
+                .field("value")
+                .value(10)
+                .build()));
         getQueryExecutor().execute(groupRequest);
     }
 
@@ -140,7 +133,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(30)
                 .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
@@ -158,7 +151,7 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(80)
                 .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(groupRequest));
+                .writeValueAsString(groupRequest));
         getQueryExecutor().execute(groupRequest);
     }
 

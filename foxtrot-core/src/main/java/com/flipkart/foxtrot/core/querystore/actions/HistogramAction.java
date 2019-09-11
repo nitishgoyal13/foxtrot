@@ -88,22 +88,22 @@ public class HistogramAction extends Action<HistogramRequest> {
     @Override
     public void validateImpl(HistogramRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
-        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
             validationErrors.add("table name cannot be null or empty");
         }
-        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
+        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
             validationErrors.add("timestamp field cannot be null or empty");
         }
-        if(parameter.getPeriod() == null) {
+        if (parameter.getPeriod() == null) {
             validationErrors.add("time period cannot be null");
         }
 
-        if(parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
                 .isEmpty()) {
             validationErrors.add("distinct field cannot be empty (can be null)");
         }
 
-        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
     }
@@ -170,11 +170,11 @@ public class HistogramAction extends Action<HistogramRequest> {
     private AbstractAggregationBuilder buildAggregation() {
         DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
         DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
-        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
             histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
         }
         return histogramBuilder;
-}
+    }
 
     @Override
     protected Filter getDefaultTimeSpan() {

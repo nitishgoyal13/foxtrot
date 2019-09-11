@@ -21,6 +21,7 @@ import com.flipkart.foxtrot.common.query.Filter;
 import com.flipkart.foxtrot.common.query.general.AnyFilter;
 import com.flipkart.foxtrot.common.query.numeric.LessThanFilter;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
+import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.exception.MalformedQueryException;
 import com.flipkart.foxtrot.core.querystore.QueryStore;
@@ -45,6 +46,7 @@ public abstract class Action<P extends ActionRequest> {
     private static final Logger logger = LoggerFactory.getLogger(Action.class.getSimpleName());
     private final TableMetadataManager tableMetadataManager;
     private final QueryStore queryStore;
+    private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private P parameter;
     private ElasticsearchConnection connection;
@@ -53,12 +55,23 @@ public abstract class Action<P extends ActionRequest> {
         this.parameter = parameter;
         this.tableMetadataManager = analyticsLoader.getTableMetadataManager();
         this.queryStore = analyticsLoader.getQueryStore();
+        this.cacheManager = analyticsLoader.getCacheManager();
         this.connection = analyticsLoader.getElasticsearchConnection();
         this.objectMapper = analyticsLoader.getObjectMapper();
     }
 
     public String cacheKey() {
         return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
+    }
+
+    private void preProcessRequest() {
+        if (parameter.getFilters() == null) {
+            parameter.setFilters(Lists.newArrayList(new AnyFilter()));
+        }
+        preprocess();
+        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
+        validateBase(parameter);
+        validateImpl(parameter);
     }
 
     public abstract void preprocess();
@@ -96,8 +109,19 @@ public abstract class Action<P extends ActionRequest> {
                 .getGetQueryTimeout();
     }
 
-    public ElasticsearchConnection getConnection() {
-        return connection;
+    private void validateBase(P parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
+            for (Filter filter : parameter.getFilters()) {
+                Set<String> errors = filter.validate();
+                if (!CollectionUtils.isNullOrEmpty(errors)) {
+                    validationErrors.addAll(errors);
+                }
+            }
+        }
+        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     /**
@@ -110,6 +134,8 @@ public abstract class Action<P extends ActionRequest> {
      */
     public abstract String getMetricKey();
 
+    public abstract String getRequestCacheKey();
+
     public abstract ActionRequestBuilder getRequestBuilder(P parameter);
 
     public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
@@ -119,10 +145,12 @@ public abstract class Action<P extends ActionRequest> {
 
     public abstract ActionResponse execute(P parameter);
 
-    public abstract String getRequestCacheKey();
-
     protected P getParameter() {
         return parameter;
+    }
+
+    public ElasticsearchConnection getConnection() {
+        return connection;
     }
 
     public TableMetadataManager getTableMetadataManager() {
@@ -154,17 +182,6 @@ public abstract class Action<P extends ActionRequest> {
         }
     }
 
-    private void preProcessRequest() {
-        if (parameter.getFilters() == null) {
-            parameter.setFilters(Lists.newArrayList(new AnyFilter()));
-        }
-        preprocess();
-        parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
-        validateBase(parameter);
-        validateImpl(parameter);
-    }
-
-
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
         if (null != filters) {
             for (Filter filter : filters) {
@@ -180,21 +197,6 @@ public abstract class Action<P extends ActionRequest> {
         }
         filters.add(getDefaultTimeSpan());
         return filters;
-    }
-
-    private void validateBase(P parameter) {
-        List<String> validationErrors = new ArrayList<>();
-        if (!CollectionUtils.isNullOrEmpty(parameter.getFilters())) {
-            for (Filter filter : parameter.getFilters()) {
-                Set<String> errors = filter.validate();
-                if (!CollectionUtils.isNullOrEmpty(errors)) {
-                    validationErrors.addAll(errors);
-                }
-            }
-        }
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
     }
 
 }

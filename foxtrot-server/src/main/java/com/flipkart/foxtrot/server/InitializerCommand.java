@@ -41,7 +41,7 @@ public class InitializerCommand extends ConfiguredCommand<FoxtrotServerConfigura
 
     @Override
     protected void run(Bootstrap<FoxtrotServerConfiguration> bootstrap, Namespace namespace,
-            FoxtrotServerConfiguration configuration) throws Exception {
+                       FoxtrotServerConfiguration configuration) throws Exception {
         ElasticsearchConfig esConfig = configuration.getElasticsearch();
         ElasticsearchConnection connection = new ElasticsearchConnection(esConfig);
         connection.start();

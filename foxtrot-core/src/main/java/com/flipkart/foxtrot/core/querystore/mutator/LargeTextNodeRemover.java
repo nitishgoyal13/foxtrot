@@ -42,7 +42,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         if (node.isObject()) {
             handleObjectNode(table, documentId, (ObjectNode) node);
         } else if (node.isArray()) {
-            handleArrayNode(table, documentId,null, (ArrayNode) node);
+            handleArrayNode(table, documentId, null, (ArrayNode) node);
         }
     }
 
@@ -113,7 +113,7 @@ public class LargeTextNodeRemover implements IndexerEventMutator {
         }
 
         if (random.nextInt(100) < configuration.getLogSamplingPercentage()) {
-                log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}",
+            log.warn("LargeTextNodeDetected table: {} documentId: {} key: {} size: {}",
                     table, documentId, key, node.textValue().length());
         }
 

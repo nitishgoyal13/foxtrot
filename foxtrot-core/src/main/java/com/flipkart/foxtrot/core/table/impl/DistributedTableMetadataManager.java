@@ -22,12 +22,7 @@ import com.flipkart.foxtrot.common.FieldMetadata;
 import com.flipkart.foxtrot.common.FieldType;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.common.TableFieldMapping;
-import com.flipkart.foxtrot.common.estimation.CardinalityEstimationData;
-import com.flipkart.foxtrot.common.estimation.EstimationData;
-import com.flipkart.foxtrot.common.estimation.EstimationDataVisitor;
-import com.flipkart.foxtrot.common.estimation.FixedEstimationData;
-import com.flipkart.foxtrot.common.estimation.PercentileEstimationData;
-import com.flipkart.foxtrot.common.estimation.TermHistogramEstimationData;
+import com.flipkart.foxtrot.common.estimation.*;
 import com.flipkart.foxtrot.common.util.CollectionUtils;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
@@ -47,23 +42,6 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.IMap;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
@@ -82,6 +60,13 @@ import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 10:11 PM
@@ -109,7 +94,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     private IMap<String, TableFieldMapping> fieldDataCardinalityCache;
 
     public DistributedTableMetadataManager(HazelcastConnection hazelcastConnection,
-            ElasticsearchConnection elasticsearchConnection, ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
+                                           ElasticsearchConnection elasticsearchConnection, ObjectMapper mapper, CardinalityConfig cardinalityConfig) {
         this.hazelcastConnection = hazelcastConnection;
         this.elasticsearchConnection = elasticsearchConnection;
         this.mapper = mapper;
@@ -145,7 +130,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
                     .size() < limit) {
                 Map<K, V> map = l1.get(l1.size() - 1);
                 ListIterator<Map<K, V>> mapsIte = l2.listIterator(l2.size());
-                while(mapsIte.hasPrevious() && map.size() < limit) {
+                while (mapsIte.hasPrevious() && map.size() < limit) {
                     Iterator<Map.Entry<K, V>> ite = mapsIte.previous()
                             .entrySet()
                             .iterator();
@@ -357,7 +342,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private Map<String, EstimationData> estimateFirstPhaseData(String table, String index, Client client,
-            Map<String, FieldMetadata> fields) {
+                                                               Map<String, FieldMetadata> fields) {
         Map<String, EstimationData> estimationDataMap = Maps.newHashMap();
         int subListSize;
         if (cardinalityConfig == null || cardinalityConfig.getSubListSize() == 0) {
@@ -412,7 +397,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private Map<String, EstimationData> estimateSecondPhaseData(String table, String index, Client client,
-            Map<String, EstimationData> estimationData) {
+                                                                Map<String, EstimationData> estimationData) {
         long maxDocuments = estimationData.values()
                 .stream()
                 .map(EstimationData::getCount)
@@ -489,7 +474,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private void handleFirstPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
-            Map<String, FieldMetadata> fields, Map<String, EstimationData> estimationDataMap) {
+                                                     Map<String, FieldMetadata> fields, Map<String, EstimationData> estimationDataMap) {
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             SearchResponse response = validateAndGetSearchResponse(item, table);
             if (null == response) {
@@ -530,7 +515,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private void handleSecondPhaseMultiSearchResponse(MultiSearchResponse multiResponse, String table,
-            Map<String, EstimationData> estimationDataMap) {
+                                                      Map<String, EstimationData> estimationDataMap) {
         for (MultiSearchResponse.Item item : multiResponse.getResponses()) {
             SearchResponse response = validateAndGetSearchResponse(item, table);
             if (null == response) {
@@ -566,7 +551,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private void evaluateStringEstimation(Aggregation value, String table, String key, FieldType type,
-            Map<String, EstimationData> estimationDataMap, long hits) {
+                                          Map<String, EstimationData> estimationDataMap, long hits) {
         Cardinality cardinality = (Cardinality) value;
         logger.info("table:{} field:{} type:{} aggregationType:{} value:{} ", table, key, type, CARDINALITY,
                 cardinality.getValue());
@@ -577,7 +562,7 @@ public class DistributedTableMetadataManager implements TableMetadataManager {
     }
 
     private void evaluateDoubleEstimation(Aggregation value, String table, String key, FieldType type,
-            Map<String, EstimationData> estimationDataMap, long hits) {
+                                          Map<String, EstimationData> estimationDataMap, long hits) {
         if (value instanceof Percentiles) {
             Percentiles percentiles = (Percentiles) value;
             double[] values = new double[10];

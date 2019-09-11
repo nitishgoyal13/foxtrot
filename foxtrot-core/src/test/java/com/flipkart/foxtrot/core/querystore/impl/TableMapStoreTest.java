@@ -12,13 +12,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.table.impl.ElasticsearchTestUtils;
@@ -27,12 +20,6 @@ import com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -45,6 +32,11 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
 
 
 /**
@@ -126,12 +118,6 @@ public class TableMapStoreTest {
                 .execute()
                 .actionGet();
         compareTables(table, mapper.readValue(response.getSourceAsBytes(), Table.class));
-    }
-
-    private void compareTables(Table expected, Table actual) {
-        assertNotNull(actual);
-        assertEquals(expected.getName(), actual.getName());
-        assertEquals(expected.getTtl(), actual.getTtl());
     }
 
     @Test(expected = RuntimeException.class)
@@ -366,7 +352,7 @@ public class TableMapStoreTest {
         Table table = new Table();
         table.setName(TEST_TABLE);
         table.setTtl(30);
-        Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+        Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
         elasticsearchConnection.getClient()
                 .prepareIndex()
                 .setIndex(TABLE_META_INDEX)
@@ -418,7 +404,7 @@ public class TableMapStoreTest {
                     .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -466,7 +452,7 @@ public class TableMapStoreTest {
                     .toString());
             table.setTtl(20);
             tables.put(table.getName(), table);
-            Map<String, Object> sourceMap = ElasticsearchQueryUtils.getSourceMap(table, Table.class);
+            Map<String, Object> sourceMap = ElasticsearchQueryUtils.toMap(mapper, table);
             elasticsearchConnection.getClient()
                     .prepareIndex()
                     .setIndex(TABLE_META_INDEX)
@@ -482,5 +468,11 @@ public class TableMapStoreTest {
         for (String name : tables.keySet()) {
             assertTrue(responseKeys.contains(name));
         }
+    }
+
+    private void compareTables(Table expected, Table actual) {
+        assertNotNull(actual);
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getTtl(), actual.getTtl());
     }
 }
