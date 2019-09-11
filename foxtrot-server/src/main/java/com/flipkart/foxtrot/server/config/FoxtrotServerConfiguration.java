@@ -13,11 +13,11 @@
 package com.flipkart.foxtrot.server.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
 import com.flipkart.foxtrot.core.common.DataDeletionManagerConfig;
 import com.flipkart.foxtrot.core.config.TextNodeRemoverConfiguration;
 import com.flipkart.foxtrot.core.datastore.impl.hbase.HbaseConfig;
+import com.flipkart.foxtrot.core.email.EmailConfig;
 import com.flipkart.foxtrot.core.jobs.optimization.EsIndexOptimizationConfig;
 import com.flipkart.foxtrot.core.querystore.impl.CacheConfig;
 import com.flipkart.foxtrot.core.querystore.impl.ClusterConfig;
@@ -26,6 +26,11 @@ import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.phonepe.gandalf.models.client.GandalfClientConfig;
 import io.appform.dropwizard.discovery.bundle.ServiceDiscoveryConfiguration;
 import io.dropwizard.Configuration;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import io.dropwizard.primer.model.PrimerBundleConfiguration;
 import io.dropwizard.riemann.RiemannConfig;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -39,6 +44,8 @@ import lombok.NonNull;
  * User: Santanu Sinha (santanu.sinha@flipkart.com) Date: 15/03/14 Time: 9:26 PM
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class FoxtrotServerConfiguration extends Configuration {
 
     @Valid
@@ -53,14 +60,6 @@ public class FoxtrotServerConfiguration extends Configuration {
     @JsonProperty("deletionconfig")
     private final DataDeletionManagerConfig deletionManagerConfig;
 
-    private SwaggerBundleConfiguration swagger;
-
-    @NotNull
-    @Valid
-    private ServiceDiscoveryConfiguration serviceDiscovery;
-    @NotNull
-    @Valid
-    private RiemannConfig riemann;
     @Valid
     private CardinalityConfig cardinality;
     @Valid
@@ -98,8 +97,6 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.deletionManagerConfig = new DataDeletionManagerConfig();
         this.emailConfig = new EmailConfig();
         this.segregationConfiguration = new SegregationConfiguration();
-        this.serviceDiscovery = new ServiceDiscoveryConfiguration();
-        this.riemann = new RiemannConfig();
         this.restrictAccess = true;
         this.queryConfig = new QueryConfig();
     }

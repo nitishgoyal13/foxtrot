@@ -12,6 +12,7 @@
  */
 package com.flipkart.foxtrot.core.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.ActionRequest;
 import com.flipkart.foxtrot.common.ActionResponse;
@@ -56,21 +57,113 @@ public abstract class Action<P extends ActionRequest> {
         this.objectMapper = analyticsLoader.getObjectMapper();
     }
 
-    private void preProcessRequest(String email) {
+    public String cacheKey() {
+        return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
+    }
+
+    public abstract void preprocess();
+
+    public ActionValidationResponse validate() {
+        try {
+            preProcessRequest();
+        } catch (MalformedQueryException e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(e.getReasons())
+                    .build();
+        } catch (Exception e) {
+            return ActionValidationResponse.builder()
+                    .processedRequest(parameter)
+                    .validationErrors(Collections.singletonList(e.getMessage()))
+                    .build();
+        }
+        return ActionValidationResponse.builder()
+                .processedRequest(parameter)
+                .validationErrors(Collections.emptyList())
+                .build();
+    }
+
+    public ActionResponse execute() {
+        preProcessRequest();
+        return execute(parameter);
+    }
+
+    public long getGetQueryTimeout() {
+        if (getConnection().getConfig() == null) {
+            return ElasticsearchConfig.DEFAULT_TIMEOUT;
+        }
+        return getConnection().getConfig()
+                .getGetQueryTimeout();
+    }
+
+    public ElasticsearchConnection getConnection() {
+        return connection;
+    }
+
+    /**
+     * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
+     * this key will create new JMX metric
+     * <p>
+     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
+     *
+     * @return metric key for current action
+     */
+    public abstract String getMetricKey();
+
+    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
+
+    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
+
+
+    public abstract void validateImpl(P parameter);
+
+    public abstract ActionResponse execute(P parameter);
+
+    public abstract String getRequestCacheKey();
+
+    protected P getParameter() {
+        return parameter;
+    }
+
+    public TableMetadataManager getTableMetadataManager() {
+        return tableMetadataManager;
+    }
+
+    public QueryStore getQueryStore() {
+        return queryStore;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
+
+    protected Filter getDefaultTimeSpan() {
+        LessThanFilter lessThanFilter = new LessThanFilter();
+        lessThanFilter.setTemporal(true);
+        lessThanFilter.setField("_timestamp");
+        lessThanFilter.setValue(System.currentTimeMillis());
+        return lessThanFilter;
+    }
+
+    protected String requestString() {
+        try {
+            return objectMapper.writeValueAsString(parameter);
+        } catch (JsonProcessingException e) {
+            logger.error("Error serializing request: ", e);
+            return "";
+        }
+    }
+
+    private void preProcessRequest() {
         if (parameter.getFilters() == null) {
             parameter.setFilters(Lists.newArrayList(new AnyFilter()));
         }
         preprocess();
         parameter.setFilters(checkAndAddTemporalBoundary(parameter.getFilters()));
         validateBase(parameter);
-        validateImpl(parameter, email);
+        validateImpl(parameter);
     }
 
-    public String cacheKey() {
-        return String.format("%s-%d", getRequestCacheKey(), System.currentTimeMillis() / 30000);
-    }
-
-    public abstract void preprocess();
 
     private List<Filter> checkAndAddTemporalBoundary(List<Filter> filters) {
         if (null != filters) {
@@ -102,87 +195,6 @@ public abstract class Action<P extends ActionRequest> {
         if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-    }
-
-    public abstract void validateImpl(P parameter, String email);
-
-    public abstract String getRequestCacheKey();
-
-    protected Filter getDefaultTimeSpan() {
-        LessThanFilter lessThanFilter = new LessThanFilter();
-        lessThanFilter.setTemporal(true);
-        lessThanFilter.setField("_timestamp");
-        lessThanFilter.setValue(System.currentTimeMillis());
-        return lessThanFilter;
-    }
-
-    public abstract ActionResponse execute(P parameter);
-
-    public ActionValidationResponse validate(String email) {
-        try {
-            preProcessRequest(email);
-        } catch (MalformedQueryException e) {
-            return ActionValidationResponse.builder()
-                    .processedRequest(parameter)
-                    .validationErrors(e.getReasons())
-                    .build();
-        } catch (Exception e) {
-            return ActionValidationResponse.builder()
-                    .processedRequest(parameter)
-                    .validationErrors(Collections.singletonList(e.getMessage()))
-                    .build();
-        }
-        return ActionValidationResponse.builder()
-                .processedRequest(parameter)
-                .validationErrors(Collections.emptyList())
-                .build();
-    }
-
-    public ActionResponse execute(String email) {
-        preProcessRequest(email);
-        return execute(parameter);
-    }
-
-    public long getGetQueryTimeout() {
-        if (getConnection().getConfig() == null) {
-            return ElasticsearchConfig.DEFAULT_TIMEOUT;
-        }
-        return getConnection().getConfig()
-                .getGetQueryTimeout();
-    }
-
-    public ElasticsearchConnection getConnection() {
-        return connection;
-    }
-
-    /**
-     * Returns a metric key for current action. Ideally this key's cardinality should be less since each new value of
-     * this key will create new JMX metric
-     * <p>
-     * Sample use cases - Used for reporting per action success/failure metrics cache hit/miss metrics
-     *
-     * @return metric key for current action
-     */
-    public abstract String getMetricKey();
-
-    public abstract ActionRequestBuilder getRequestBuilder(P parameter);
-
-    public abstract ActionResponse getResponse(org.elasticsearch.action.ActionResponse response, P parameter);
-
-    protected P getParameter() {
-        return parameter;
-    }
-
-    public TableMetadataManager getTableMetadataManager() {
-        return tableMetadataManager;
-    }
-
-    public QueryStore getQueryStore() {
-        return queryStore;
-    }
-
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
     }
 
 }

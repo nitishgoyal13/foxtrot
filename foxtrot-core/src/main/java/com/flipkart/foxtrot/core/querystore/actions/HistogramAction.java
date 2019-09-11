@@ -12,7 +12,6 @@
  */
 package com.flipkart.foxtrot.core.querystore.actions;
 
-import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 import com.flipkart.foxtrot.common.ActionResponse;
 import com.flipkart.foxtrot.common.histogram.HistogramRequest;
 import com.flipkart.foxtrot.common.histogram.HistogramResponse;
@@ -26,10 +25,6 @@ import com.flipkart.foxtrot.core.querystore.actions.spi.AnalyticsProvider;
 import com.flipkart.foxtrot.core.querystore.impl.ElasticsearchUtils;
 import com.flipkart.foxtrot.core.querystore.query.ElasticSearchQueryGenerator;
 import io.dropwizard.util.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -40,6 +35,13 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static com.flipkart.foxtrot.core.util.ElasticsearchQueryUtils.QUERY_SIZE;
 
 /**
  * User: Santanu Sinha (santanu.sinha@flipkart.com)
@@ -60,28 +62,6 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    public void validateImpl(HistogramRequest parameter, String email) {
-        List<String> validationErrors = new ArrayList<>();
-        if (CollectionUtils.isNullOrEmpty(parameter.getTable())) {
-            validationErrors.add("table name cannot be null or empty");
-        }
-        if (CollectionUtils.isNullOrEmpty(parameter.getField())) {
-            validationErrors.add("timestamp field cannot be null or empty");
-        }
-        if (parameter.getPeriod() == null) {
-            validationErrors.add("time period cannot be null");
-        }
-
-        if (parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
-                .isEmpty()) {
-            validationErrors.add("distinct field cannot be empty (can be null)");
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(validationErrors)) {
-            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
-        }
-    }
-
     public void preprocess() {
         getParameter().setTable(ElasticsearchUtils.getValidTableName(getParameter().getTable()));
     }
@@ -106,11 +86,26 @@ public class HistogramAction extends Action<HistogramRequest> {
     }
 
     @Override
-    protected Filter getDefaultTimeSpan() {
-        LastFilter lastFilter = new LastFilter();
-        lastFilter.setField("_timestamp");
-        lastFilter.setDuration(Duration.days(1));
-        return lastFilter;
+    public void validateImpl(HistogramRequest parameter) {
+        List<String> validationErrors = new ArrayList<>();
+        if(CollectionUtils.isNullOrEmpty(parameter.getTable())) {
+            validationErrors.add("table name cannot be null or empty");
+        }
+        if(CollectionUtils.isNullOrEmpty(parameter.getField())) {
+            validationErrors.add("timestamp field cannot be null or empty");
+        }
+        if(parameter.getPeriod() == null) {
+            validationErrors.add("time period cannot be null");
+        }
+
+        if(parameter.getUniqueCountOn() != null && parameter.getUniqueCountOn()
+                .isEmpty()) {
+            validationErrors.add("distinct field cannot be empty (can be null)");
+        }
+
+        if(!CollectionUtils.isNullOrEmpty(validationErrors)) {
+            throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
+        }
     }
 
     @Override
@@ -149,16 +144,6 @@ public class HistogramAction extends Action<HistogramRequest> {
         return buildResponse(aggregations);
     }
 
-    private AbstractAggregationBuilder buildAggregation() {
-        DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
-        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(
-                getParameter().getField(), interval);
-        if (!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
-            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
-        }
-        return histogramBuilder;
-    }
-
     private HistogramResponse buildResponse(Aggregations aggregations) {
         if (aggregations == null) {
             return new HistogramResponse(Collections.<HistogramResponse.Count>emptyList());
@@ -180,6 +165,23 @@ public class HistogramAction extends Action<HistogramRequest> {
             }
         }
         return new HistogramResponse(counts);
+    }
+
+    private AbstractAggregationBuilder buildAggregation() {
+        DateHistogramInterval interval = Utils.getHistogramInterval(getParameter().getPeriod());
+        DateHistogramAggregationBuilder histogramBuilder = Utils.buildDateHistogramAggregation(getParameter().getField(), interval);
+        if(!CollectionUtils.isNullOrEmpty(getParameter().getUniqueCountOn())) {
+            histogramBuilder.subAggregation(Utils.buildCardinalityAggregation(getParameter().getUniqueCountOn()));
+        }
+        return histogramBuilder;
+}
+
+    @Override
+    protected Filter getDefaultTimeSpan() {
+        LastFilter lastFilter = new LastFilter();
+        lastFilter.setField("_timestamp");
+        lastFilter.setDuration(Duration.days(1));
+        return lastFilter;
     }
 
 }

@@ -5,8 +5,6 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -69,11 +67,6 @@ public abstract class ActionTest {
         this.mapper = new ObjectMapper();
         HazelcastConnection hazelcastConnection = Mockito.mock(HazelcastConnection.class);
         Config config = new Config();
-        EmailConfig emailConfig = new EmailConfig();
-        emailConfig.setHost("127.0.0.1");
-        emailConfig.setFrom("noreply@foxtrot.com");
-        EmailClient emailClient = Mockito.mock(EmailClient.class);
-        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
 
         this.hazelcastInstance = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         when(hazelcastConnection.getHazelcast()).thenReturn(hazelcastInstance);
@@ -94,16 +87,13 @@ public abstract class ActionTest {
                 .ttl(30)
                 .build());
 
-        DataStore dataStore = TestUtils.getDataStore();
         List<IndexerEventMutator> mutators = Lists.newArrayList(new LargeTextNodeRemover(mapper,
                 TextNodeRemoverConfiguration.builder().build()));
-        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators,
-                mapper,
-                cardinalityConfig);
-        cacheManager = new CacheManager(
-                new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
-        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore,
-                elasticsearchConnection, cacheManager, mapper, emailConfig, emailClient);
+        DataStore dataStore = TestUtils.getDataStore();
+        this.queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
+        cacheManager = new CacheManager(new DistributedCacheFactory(hazelcastConnection, mapper, new CacheConfig()));
+        AnalyticsLoader analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
+                                                              cacheManager, mapper);
         analyticsLoader.start();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         this.queryExecutor = new QueryExecutor(analyticsLoader, executorService, Collections.singletonList(new ResponseCacheUpdater(cacheManager)));

@@ -26,8 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class,
-        cacheable = true)
+/***
+ Created by nitish.goyal on 22/08/18
+ ***/
+@AnalyticsProvider(opcode = "multi_query", request = MultiQueryRequest.class, response = MultiQueryResponse.class, cacheable = true)
 public class MultiQueryAction extends Action<MultiQueryRequest> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiQueryAction.class);
@@ -49,12 +51,12 @@ public class MultiQueryAction extends Action<MultiQueryRequest> {
     }
 
     @Override
-    public void validateImpl(MultiQueryRequest parameter, String email) {
+    public void validateImpl(MultiQueryRequest parameter) {
         MultiQueryRequest multiQueryRequest = getParameter();
         MultiException multiException = new MultiException();
         processForSubQueries(multiQueryRequest, (action, request) -> {
             try {
-                action.validateImpl(request, email);
+                action.validateImpl(request);
             } catch (MalformedQueryException e) {
                 multiException.addError(e);
             }

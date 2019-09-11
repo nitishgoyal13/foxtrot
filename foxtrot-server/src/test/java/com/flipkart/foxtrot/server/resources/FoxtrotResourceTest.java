@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.TestUtils;
-import com.flipkart.foxtrot.core.alerts.EmailClient;
-import com.flipkart.foxtrot.core.alerts.EmailConfig;
 import com.flipkart.foxtrot.core.cache.CacheManager;
 import com.flipkart.foxtrot.core.cache.impl.DistributedCacheFactory;
 import com.flipkart.foxtrot.core.cardinality.CardinalityConfig;
@@ -153,14 +151,7 @@ public abstract class FoxtrotResourceTest {
         queryStore = new ElasticsearchQueryStore(tableMetadataManager, elasticsearchConnection, dataStore, mutators, mapper, cardinalityConfig);
         queryStore = spy(queryStore);
 
-        EmailConfig emailConfig = new EmailConfig();
-        emailConfig.setHost("127.0.0.1");
-        emailConfig.setFrom("noreply@foxtrot.com");
-        EmailClient emailClient = Mockito.mock(EmailClient.class);
-        when(emailClient.sendEmail(any(String.class), any(String.class), any(String.class))).thenReturn(true);
-
-        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection,
-                cacheManager, mapper, emailConfig, emailClient);
+        analyticsLoader = new AnalyticsLoader(tableMetadataManager, dataStore, queryStore, elasticsearchConnection, cacheManager, mapper);
         try {
             analyticsLoader.start();
         } catch (Exception e) {

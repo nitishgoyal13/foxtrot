@@ -14,6 +14,9 @@ import com.flipkart.foxtrot.core.exception.FoxtrotException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,8 +54,7 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(
-                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -75,8 +77,7 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("1"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(
-                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
         assertNotNull(distinctResponse);
         assertEquals(expectedResponse, distinctResponse);
     }
@@ -110,8 +111,7 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(
-                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
         assertNotNull(distinctResponse);
     }
 
@@ -144,8 +144,7 @@ public class DistinctActionTest extends ActionTest {
         listResponse.add(Arrays.asList("3", "android"));
         expectedResponse.setResult(listResponse);
 
-        DistinctResponse distinctResponse = DistinctResponse.class.cast(
-                getQueryExecutor().execute(distinctRequest, TEST_EMAIL));
+        DistinctResponse distinctResponse = DistinctResponse.class.cast(getQueryExecutor().execute(distinctRequest));
         assertNotNull(distinctResponse);
     }
 }

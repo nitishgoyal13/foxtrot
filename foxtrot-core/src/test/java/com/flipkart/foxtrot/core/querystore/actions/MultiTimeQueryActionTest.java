@@ -26,6 +26,12 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
+
 /***
  Created by mudit.g on Mar, 2019
  ***/
@@ -55,11 +61,11 @@ public class MultiTimeQueryActionTest extends ActionTest {
         resultSort.setField("_timestamp");
         query.setSort(resultSort);
         BetweenFilter betweenFilter = new BetweenFilter("_timestamp", 1397658117000L, 1397658118005L, false);
-        query.setFilters(Arrays.asList(betweenFilter));
+        query.setFilters(Collections.singletonList(betweenFilter));
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest);
         MultiTimeQueryResponse multiTimeQueryResponse = null;
         if (actionResponse instanceof MultiTimeQueryResponse) {
             multiTimeQueryResponse = (MultiTimeQueryResponse) actionResponse;
@@ -85,7 +91,7 @@ public class MultiTimeQueryActionTest extends ActionTest {
 
         Duration duration = Duration.days(1);
         MultiTimeQueryRequest multiTimeQueryRequest = new MultiTimeQueryRequest(1, duration, query);
-        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL);
+        ActionResponse actionResponse = getQueryExecutor().execute(multiTimeQueryRequest);
         MultiTimeQueryResponse multiTimeQueryResponse = null;
         if (actionResponse instanceof MultiTimeQueryResponse) {
             multiTimeQueryResponse = (MultiTimeQueryResponse) actionResponse;
@@ -143,8 +149,8 @@ public class MultiTimeQueryActionTest extends ActionTest {
                         getMapper()));
 
         MultiTimeQueryResponse multiTimeQueryResponse = MultiTimeQueryResponse.class.cast(
-                getQueryExecutor().execute(multiTimeQueryRequest, TEST_EMAIL));
-        for (String key : multiTimeQueryResponse.getResponses()
+                getQueryExecutor().execute(multiTimeQueryRequest));
+        for(String key : multiTimeQueryResponse.getResponses()
                 .keySet()) {
             compare(documents, ((QueryResponse) multiTimeQueryResponse.getResponses()
                     .get(key)).getDocuments());

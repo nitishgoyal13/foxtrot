@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,7 +62,7 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(150, statsResponse.getResult()
@@ -80,10 +82,11 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField("battery");
         request.setStats(EnumSet.allOf(Stat.class)
-                .stream()
-                .filter(x -> !x.isExtended())
-                .collect(Collectors.toSet()));
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+                                 .stream()
+                                 .filter(x -> !x.isExtended())
+                                 .collect(Collectors.toSet()));
+
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(5, statsResponse.getResult()
@@ -98,7 +101,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.COUNT));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -116,7 +119,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.MAX));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -134,7 +137,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.MIN));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -153,7 +156,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.AVG));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -171,7 +174,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setStats(Collections.singleton(Stat.SUM));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertTrue(statsResponse.getResult()
@@ -193,7 +196,7 @@ public class StatsActionTest extends ActionTest {
         betweenFilter.setField("_timestamp");
         request.setFilters(Collections.<Filter>singletonList(betweenFilter));
 
-        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request, TEST_EMAIL);
+        StatsResponse statsResponse = (StatsResponse)getQueryExecutor().execute(request);
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(1, statsResponse.getResult()
@@ -211,7 +214,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os"));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
@@ -228,7 +231,7 @@ public class StatsActionTest extends ActionTest {
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
 
-        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request, TEST_EMAIL));
+        StatsResponse statsResponse = StatsResponse.class.cast(getQueryExecutor().execute(request));
         assertNotNull(statsResponse);
         assertNotNull(statsResponse.getResult());
         assertEquals(3, statsResponse.getBuckets()
@@ -246,7 +249,7 @@ public class StatsActionTest extends ActionTest {
         request.setTable(null);
         request.setField("battery");
         request.setNesting(Lists.newArrayList("os", "version"));
-        getQueryExecutor().execute(request, TEST_EMAIL);
+        getQueryExecutor().execute(request);
     }
 
     @Test(expected = MalformedQueryException.class)
@@ -255,6 +258,6 @@ public class StatsActionTest extends ActionTest {
         request.setTable(TestUtils.TEST_TABLE_NAME);
         request.setField(null);
         request.setNesting(Lists.newArrayList("os", "version"));
-        getQueryExecutor().execute(request, TEST_EMAIL);
+        getQueryExecutor().execute(request);
     }
 }

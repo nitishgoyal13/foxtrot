@@ -80,7 +80,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
     }
 
     @Override
-    public void validateImpl(MultiTimeQueryRequest parameter, String email) {
+    public void validateImpl(MultiTimeQueryRequest parameter) {
         List<String> validationErrors = new ArrayList<>();
         if (parameter.getActionRequest() == null) {
             validationErrors.add("action request cannot be null or empty");
@@ -91,7 +91,7 @@ public class MultiTimeQueryAction extends Action<MultiTimeQueryRequest> {
         if (com.collections.CollectionUtils.isNotEmpty(validationErrors)) {
             throw FoxtrotExceptions.createMalformedQueryException(parameter, validationErrors);
         }
-        action.validateImpl(multiQueryRequest, email);
+        action.validateImpl(multiQueryRequest);
     }
 
     @Override

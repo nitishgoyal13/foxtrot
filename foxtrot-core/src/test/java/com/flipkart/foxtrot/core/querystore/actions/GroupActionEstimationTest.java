@@ -21,6 +21,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Tests cardinality estimation
  */
@@ -50,7 +53,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("os"));
 
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
 
         Assert.assertTrue(response.getResult()
                 .containsKey("android"));
@@ -67,7 +70,7 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
 
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -84,8 +87,8 @@ public class GroupActionEstimationTest extends ActionTest {
                 .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+                          .writeValueAsString(groupRequest));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
         Assert.assertTrue(response.getResult()
@@ -105,8 +108,8 @@ public class GroupActionEstimationTest extends ActionTest {
                 .build()));
 
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+                          .writeValueAsString(groupRequest));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
@@ -120,10 +123,10 @@ public class GroupActionEstimationTest extends ActionTest {
         groupRequest.setTable(TestUtils.TEST_TABLE_NAME);
         groupRequest.setNesting(Collections.singletonList("deviceId"));
         groupRequest.setFilters(ImmutableList.of(GreaterThanFilter.builder()
-                .field("value")
-                .value(10)
-                .build()));
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+                                                         .field("value")
+                                                         .value(10)
+                                                         .build()));
+        getQueryExecutor().execute(groupRequest);
     }
 
     @Test
@@ -137,8 +140,8 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(30)
                 .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(groupRequest));
-        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest, TEST_EMAIL));
+                          .writeValueAsString(groupRequest));
+        GroupResponse response = GroupResponse.class.cast(getQueryExecutor().execute(groupRequest));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
                 .writeValueAsString(response));
         Assert.assertFalse(response.getResult()
@@ -155,8 +158,8 @@ public class GroupActionEstimationTest extends ActionTest {
                 .value(80)
                 .build()));
         log.debug(getMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(groupRequest));
-        getQueryExecutor().execute(groupRequest, TEST_EMAIL);
+                          .writeValueAsString(groupRequest));
+        getQueryExecutor().execute(groupRequest);
     }
 
 }
