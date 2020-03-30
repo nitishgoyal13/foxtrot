@@ -18,6 +18,7 @@ package com.flipkart.foxtrot.core.datastore.impl.hbase;
 import com.flipkart.foxtrot.common.Table;
 import com.flipkart.foxtrot.core.exception.FoxtrotExceptions;
 import com.flipkart.foxtrot.core.util.TableUtil;
+import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import io.dropwizard.lifecycle.Managed;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -93,7 +94,8 @@ public class HbaseTableConnection implements Managed {
     @Override
     public void start() throws Exception {
         logger.info("Starting HBase Connection");
-        connection = ConnectionFactory.createConnection(configuration);
+        Configuration configuration = HBaseUtil.create(hbaseConfig);
+        connection = BigtableConfiguration.connect(hbaseConfig.getProjectId(), hbaseConfig.getInstanceId());
         this.hBaseAdmin = connection.getAdmin();
         logger.info("Started HBase Connection");
     }

@@ -16,6 +16,7 @@
 
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -96,7 +97,8 @@ public abstract class HBaseUtil {
         columnDescriptor.setCompressionType(Compression.Algorithm.GZ);
         hTableDescriptor.addFamily(columnDescriptor);
         Configuration configuration = HBaseUtil.create(hbaseConfig);
-        Connection connection = ConnectionFactory.createConnection(configuration);
+        //Connection connection = ConnectionFactory.createConnection(configuration);
+        Connection connection = BigtableConfiguration.connect(hbaseConfig.getProjectId(), hbaseConfig.getInstanceId());
         Admin hBaseAdmin = null;
         try {
             hBaseAdmin = connection.getAdmin();

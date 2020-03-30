@@ -15,6 +15,7 @@
  */
 package com.flipkart.foxtrot.core.datastore.impl.hbase;
 
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -28,6 +29,7 @@ import javax.validation.constraints.NotNull;
  * Time: 7:35 PM
  */
 @NoArgsConstructor
+@Data
 public class HbaseConfig {
 
     private boolean secure = false;
@@ -43,6 +45,9 @@ public class HbaseConfig {
     private String hbaseZookeeperQuorum;
     private String hbaseZookeeperZnodeParent;
     private Integer hbaseZookeeperClientPort;
+
+    private String projectId;
+    private String instanceId;
 
     @Min(1)
     @Max(Byte.MAX_VALUE)
