@@ -50,6 +50,7 @@ import com.google.inject.TypeLiteral;
 import io.dropwizard.server.ServerFactory;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.util.Duration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.hadoop.conf.Configuration;
 
 import javax.inject.Singleton;
@@ -115,6 +116,12 @@ public class FoxtrotModule extends AbstractModule {
     @Singleton
     public ClusterConfig clusterConfig(FoxtrotServerConfiguration configuration) {
         return configuration.getCluster();
+    }
+
+    @Provides
+    @Singleton
+    public SwaggerBundleConfiguration swaggerBundleConfiguration(FoxtrotServerConfiguration configuration){
+        return configuration.getSwagger();
     }
 
     @Provides
