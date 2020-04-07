@@ -63,12 +63,10 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
             }
         });
 
-        final SwaggerBundleConfiguration swaggerBundleConfiguration = getSwaggerBundleConfiguration();
-
         bootstrap.addBundle(new SwaggerBundle<FoxtrotServerConfiguration>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FoxtrotServerConfiguration configuration) {
-                return swaggerBundleConfiguration;
+                return configuration.getSwagger();
             }
         });
 
@@ -115,15 +113,6 @@ public class FoxtrotServer extends Application<FoxtrotServerConfiguration> {
         objectMapper.registerSubtypes(new NamedType(SimpleClusterDiscoveryConfig.class, "foxtrot_simple"));
         objectMapper.registerSubtypes(new NamedType(MarathonClusterDiscoveryConfig.class, "foxtrot_marathon"));
         objectMapper.registerSubtypes(new NamedType(KubernetesClusterDiscoveryConfig.class, "foxtrot_kubernetes"));
-    }
-
-    private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
-        final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
-        swaggerBundleConfiguration.setTitle("Foxtrot");
-        swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
-        swaggerBundleConfiguration.setUriPrefix("/foxtrot");
-        swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
-        return swaggerBundleConfiguration;
     }
 
 }

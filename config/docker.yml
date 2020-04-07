@@ -67,3 +67,16 @@ consoleHistoryConfig:
   interval: 86400
   initialDelay: 10
 
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"
+  auth:
+    users:
+      - name: admin
+        password: ${SWAGGER_ADMIN_SHA}
+        roles:
+          - ADMIN
+
+

@@ -30,6 +30,7 @@ import com.flipkart.foxtrot.server.jobs.consolehistory.ConsoleHistoryConfig;
 import com.foxtrot.flipkart.translator.config.SegregationConfiguration;
 import com.foxtrot.flipkart.translator.config.TranslatorConfig;
 import io.dropwizard.Configuration;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -86,6 +87,9 @@ public class FoxtrotServerConfiguration extends Configuration {
     @Builder.Default
     private TextNodeRemoverConfiguration textNodeRemover = new TextNodeRemoverConfiguration();
 
+    @Builder.Default
+    private SwaggerBundleConfiguration swagger = getSwaggerBundleConfiguration();
+
     public FoxtrotServerConfiguration() {
         this.hbase = new HbaseConfig();
         this.elasticsearch = new ElasticsearchConfig();
@@ -95,6 +99,15 @@ public class FoxtrotServerConfiguration extends Configuration {
         this.segregationConfiguration = new SegregationConfiguration();
         this.restrictAccess = true;
         this.elasticsearchTuningConfig = new ElasticsearchTuningConfig();
+        this.swagger = getSwaggerBundleConfiguration();
     }
 
+    private SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
+        final SwaggerBundleConfiguration swaggerBundleConfiguration = new SwaggerBundleConfiguration();
+        swaggerBundleConfiguration.setTitle("Foxtrot");
+        swaggerBundleConfiguration.setResourcePackage("com.flipkart.foxtrot.server.resources");
+        swaggerBundleConfiguration.setUriPrefix("/foxtrot");
+        swaggerBundleConfiguration.setDescription("A store abstraction and analytics system for real-time event data.");
+        return swaggerBundleConfiguration;
+    }
 }

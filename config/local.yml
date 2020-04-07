@@ -61,3 +61,28 @@ deletionconfig:
   active: false
   interval: 86400
   initialdelay: 60
+
+swagger:
+  resourcePackage: com.flipkart.foxtrot.server.resources
+  title: Foxtrot
+  description: A store abstraction and analytics system for real-time event data.
+  uriPrefix: "/foxtrot"
+  auth:
+    users:
+      - name: admin
+        password: admin
+        roles:
+          - ADMIN
+      - name: dev
+        password: dev
+        roles:
+          - OPERATOR
+      - name: adops
+        password: adops
+        roles:
+          - ADMIN
+          - OPERATOR
+      - name: ops
+        password: ops
+        roles:
+          - OPERATOR
