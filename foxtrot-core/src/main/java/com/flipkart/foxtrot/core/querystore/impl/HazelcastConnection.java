@@ -133,7 +133,9 @@ public class HazelcastConnection implements Managed {
                 logger.info("Using Kubernetes");
                 JoinConfig kbConfig = hzConfig.getNetworkConfig().getJoin();
                 kbConfig.getMulticastConfig().setEnabled(false);
-                kbConfig.getKubernetesConfig().setEnabled(true);
+                kbConfig.getKubernetesConfig().setEnabled(true)
+                        .setProperty("namespace", clusterConfig.getName())
+                        .setProperty("service-name", clusterConfig.getName());
                 break;
             default:
                 logger.warn("Invalid discovery config");

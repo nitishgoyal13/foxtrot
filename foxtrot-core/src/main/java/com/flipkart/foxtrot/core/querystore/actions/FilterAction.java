@@ -184,7 +184,7 @@ public class FilterAction extends Action<Query> {
     private ActionResponse executeScrollRequest(Query parameter) {
         List<String> ids = new ArrayList<>();
         String scrollId;
-        long totalHits = 0;
+        long totalHits;
         try {
             if (StringUtils.isNotEmpty(parameter.getScrollId())) {
                 scrollId = parameter.getScrollId();
@@ -197,6 +197,7 @@ public class FilterAction extends Action<Query> {
                 for (SearchHit searchHit : hits) {
                     ids.add(searchHit.getId());
                 }
+                totalHits = hits.getTotalHits();
             }
             else {
                 SearchRequest searchRequest = getScrollRequestBuilder(parameter);
